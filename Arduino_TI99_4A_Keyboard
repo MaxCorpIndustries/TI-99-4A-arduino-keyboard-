@@ -1,0 +1,1646 @@
+/*
+ ------- TI 99 4A keyboard input system ---------
+               by: Maximo Perasso
+                   V 1.0.0 as of 3/11/2020
+            
+ mod and use as you wish, and happy hobbying!
+ 
+
+quick note:
+This system works by setting 'output pins' to high, checking the values of the input pins, then setting them to low in order.
+please see 8 bit guys video of the commodore pet restoration to get an idea of how this system works. (on youtube)
+ (although note the binary to decimal decoder isn't needed here, we're just doing the 'complete the circuit' part.
+
+
+         keyboard chart:
+                          "COLUM"
+              #12  #13  #14  #15  #9  #8  #6
+         #5    =    .    ,    M    N   /   
+         #4  spac   L    K    J    H   ;
+         #1  entr   O    I    U    Y   P
+"ROW"    #2         9    8    7    6   0
+         #7  fctn   2    3    4    5   1  lock
+         #3  shft   S    D    F    G   A
+         #10 ctrl   W    E    R    T   Q
+         #11        X    C    V    B   Z
+*/
+
+//using the keyboard.h library, make sure your device is compatible with sending keyboard signals! (ex: the due works for sure, but check if the uno works online)
+#include <Keyboard.h>
+
+/*
+TEMPLATE FOR HOW KEY SETTING WORKS
+----------------------------------
+const int COLUM_#PIN COLUM_PIN = pin number on the physical arduino
+
+"int keyonce_#COLUM NUMBER#_#ROW NUMBER# =0"
+
+These variables are toggled to 1 when the key is pressed, and set to 0 when depressed
+This allows the system to interpret the key press as just 1 individual key press 
+instead of the thousands of times it checks the signal per second as individal key presses.
+
+"int repeat_#COLUM NUMBER#_#ROW NUMBER# =0"z
+
+This variable stores how long a key is pressed, if it is measured greater than the 
+"repeat_time" var, then it will begin spamming the key like a modern system
+*/
+
+//COLUM 6 pin & appropriate keyonce's and repeat values
+const int COLUM_6_PIN = 27;
+int keyonce_1_6 =0;
+int repeat_1_6 =0;
+
+int keyonce_2_6 =0;
+int repeat_2_6 =0;
+
+int keyonce_3_6 =0;
+int repeat_3_6 =0;
+
+int keyonce_4_6 =0;
+int repeat_4_6 =0;
+
+int keyonce_5_6 =0;
+int repeat_5_6 =0;
+
+int keyonce_7_6 =0;
+int repeat_7_6 =0;
+
+int keyonce_10_6 =0;
+int repeat_10_6 =0;
+
+int keyonce_11_6 =0;
+int repeat_11_6 =0;
+
+//COLUM 8 pin & appropriate keyonce's and repeat values
+const int COLUM_8_PIN = 29;
+int keyonce_1_8 =0;
+int repeat_1_8 =0;
+
+int keyonce_2_8 =0;
+int repeat_2_8 =0;
+
+int keyonce_3_8 =0;
+int repeat_3_8 =0;
+
+int keyonce_4_8 =0;
+int repeat_4_8 =0;
+
+int keyonce_5_8 =0;
+int repeat_5_8 =0;
+
+int keyonce_7_8 =0;
+int repeat_7_8 =0;
+
+int keyonce_10_8 =0;
+int repeat_10_8 =0;
+
+int keyonce_11_8 =0;
+int repeat_11_8 =0;
+
+//COLUM 9 pin & appropriate keyonce's and repeat values
+const int COLUM_9_PIN = 30;
+int keyonce_1_9 =0;
+int repeat_1_9 =0;
+
+int keyonce_2_9 =0;
+int repeat_2_9 =0;
+
+int keyonce_3_9 =0;
+int repeat_3_9 =0;
+
+int keyonce_4_9 =0;
+int repeat_4_9 =0;
+
+int keyonce_5_9 =0;
+int repeat_5_9 =0;
+
+int keyonce_7_9 =0;
+int repeat_7_9 =0;
+
+int keyonce_10_9 =0;
+int repeat_10_9 =0;
+
+int keyonce_11_9 =0;
+int repeat_11_9 =0;
+
+//COLUM 12 pin & appropriate keyonce's and repeat values
+const int COLUM_12_PIN = 33;
+int keyonce_1_12 =0;
+int repeat_1_12 =0;
+
+int keyonce_2_12 =0;
+int repeat_2_12 =0;
+
+int keyonce_3_12 =0;
+int repeat_3_12 =0;
+
+int keyonce_4_12 =0;
+int repeat_4_12 =0;
+
+int keyonce_5_12 =0;
+int repeat_5_12 =0;
+
+int keyonce_7_12 =0;
+int repeat_7_12 =0;
+
+int keyonce_10_12 =0;
+int repeat_10_12 =0;
+
+int keyonce_11_12 =0;
+int repeat_11_12 =0;
+
+//COLUM 13 pin & appropriate keyonce's and repeat values
+const int COLUM_13_PIN = 34;
+int keyonce_1_13 =0;
+int repeat_1_13 =0;
+
+int keyonce_2_13 =0;
+int repeat_2_13 =0;
+
+int keyonce_3_13 =0;
+int repeat_3_13 =0;
+
+int keyonce_4_13 =0;
+int repeat_4_13 =0;
+
+int keyonce_5_13 =0;
+int repeat_5_13 =0;
+
+int keyonce_7_13 =0;
+int repeat_7_13 =0;
+
+int keyonce_10_13 =0;
+int repeat_10_13 =0;
+
+int keyonce_11_13 =0;
+int repeat_11_13 =0;
+
+//COLUM 14 pin & appropriate keyonce's and repeat values
+const int COLUM_14_PIN = 35;
+int keyonce_1_14 =0;
+int repeat_1_14 =0;
+
+int keyonce_2_14 =0;
+int repeat_2_14 =0;
+
+int keyonce_3_14 =0;
+int repeat_3_14 =0;
+
+int keyonce_4_14 =0;
+int repeat_4_14 =0;
+
+int keyonce_5_14 =0;
+int repeat_5_14 =0;
+
+int keyonce_7_14 =0;
+int repeat_7_14 =0;
+
+int keyonce_10_14 =0;
+int repeat_10_14 =0;
+
+int keyonce_11_14 =0;
+int repeat_11_14 =0;
+
+//COLUM 15 pin & appropriate keyonce's and repeat values
+const int COLUM_15_PIN = 36;
+int keyonce_1_15 =0;
+int repeat_1_15 =0;
+
+int keyonce_2_15 =0;
+int repeat_2_15 =0;
+
+int keyonce_3_15 =0;
+int repeat_3_15 =0;
+
+int keyonce_4_15 =0;
+int repeat_4_15 =0;
+
+int keyonce_5_15 =0;
+int repeat_5_15 =0;
+
+int keyonce_7_15 =0;
+int repeat_7_15 =0;
+
+int keyonce_10_15 =0;
+int repeat_10_15 =0;
+
+int keyonce_11_15 =0;
+int repeat_11_15 =0;
+
+
+//repeat time (when you hold down a key for more than this long, the key will be spammed like on modern machines)
+int repeat_time=50000;
+
+
+//these modifyers are either true or false, and checked for in each key
+boolean shft;
+boolean fctn;
+boolean lock;
+boolean ctrl;
+
+//these are the rows which the system checks
+int ROW_1=22;
+int ROW_2=23;
+int ROW_3=24;
+int ROW_4=25;
+int ROW_5=26;
+int ROW_7=28;
+int ROW_10=31;
+int ROW_11=32;
+
+void setup() 
+{
+  Serial.begin(9600);
+
+  //setting the appropriate pins as input/output
+  //note the OUTPUTS are the COLUMS in the chart
+  //and the INPUTS are the ROWS in the chart
+  pinMode(ROW_1, OUTPUT);       // 1 
+  pinMode(ROW_2, OUTPUT);       // 2
+  pinMode(ROW_3, OUTPUT);       // 3
+  pinMode(ROW_4, OUTPUT);       // 4
+  pinMode(ROW_5, OUTPUT);       // 5
+  pinMode(COLUM_6_PIN, INPUT);  // 6
+  pinMode(ROW_7, OUTPUT);       // 7
+  pinMode(COLUM_8_PIN, INPUT);  // 8
+  pinMode(COLUM_9_PIN, INPUT);  // 9  
+  pinMode(ROW_10, OUTPUT);      // 10
+  pinMode(ROW_11, OUTPUT);      // 11
+  pinMode(COLUM_12_PIN, INPUT); // 12
+  pinMode(COLUM_13_PIN, INPUT); // 13  
+  pinMode(COLUM_14_PIN, INPUT); // 14 
+  pinMode(COLUM_15_PIN, INPUT); // 15
+
+  Keyboard.begin(); //begin keyboard scan
+}
+
+//actually checking for the values being pressed
+void loop() 
+{
+  checkModifiers(); //this checks the modifyers shift,function and lock (although lock is just caps lock)
+  
+//------------------------------------------------ROW 1------------------------------------------------
+   digitalWrite(ROW_1,HIGH);//row 1 on   
+   
+   //note, not using COLUM_6_PIN because that colum has no key assigned.
+   
+        //P Key
+   if (digitalRead(COLUM_8_PIN) == HIGH) { //is colum 8 reading high?   
+     if(keyonce_1_8!=1) { //Has this key been pressed before?
+       if(shft == true || lock == true){ //has shift or lock been pressed?
+         Keyboard.write('P'); //Print value in caps
+       } else if (fctn == true) { //has function been pressed?
+         Keyboard.write('"');  //print function value
+       } else {// has no mod been pressed?
+         Keyboard.write('p'); //print value in lowercase
+       }
+       keyonce_1_8=1; //lock value
+     }
+     else { //If the lock is engaged (means the user is holding down the key)
+       repeat_1_8++; //add to repeat value 
+       if(repeat_1_8 > repeat_time) { //if the user has held down the key longer than repeat_time  
+        if(shft == true || lock == true){ //has shift or lock been pressed?
+          Keyboard.write('P'); //Print value in caps
+        } else if (fctn == true) { //has function been pressed?
+          Keyboard.write('"');  //print function value
+        } else {// has no mod been pressed?
+          Keyboard.write('p'); //print value in lowercase
+        }
+        delay(100); //give a little delay time so the spam isn't so intense.
+       }
+     }     
+   }
+   else { //don't repeat while held down (if key depressed, reset key lock and repeat timer)
+     keyonce_1_8=0; 
+     repeat_1_8=0;
+   }
+        //Y Key
+   if (digitalRead(COLUM_9_PIN) == HIGH) { //is colum 9 reading high?   
+     if(keyonce_1_9!=1) { //Has this key been pressed before?
+       if(shft == true || lock == true){ //has shift or lock been pressed?
+         Keyboard.write('Y'); //Print value in caps
+       } else if (fctn == true) { //has function been pressed?
+         //HAS NO FUNCTION ASSIGNED
+       } else {// has no mod been pressed?
+         Keyboard.write('y'); //print value in lowercase
+       }
+       keyonce_1_9=1; //lock value
+     }
+     else { //If the lock is engaged (means the user is holding down the key)
+       repeat_1_9++; //add to repeat value 
+       if(repeat_1_9 > repeat_time) { //if the user has held down the key longer than repeat_time  
+        if(shft == true || lock == true){ //has shift or lock been pressed?
+          Keyboard.write('Y'); //Print value in caps
+        } else if (fctn == true) { //has function been pressed?
+          //HAS NO FUNCTION ASSIGNED
+        } else {// has no mod been pressed?
+          Keyboard.write('y'); //print value in lowercase
+        }
+        delay(100); //give a little delay time so the spam isn't so intense.
+       }
+     }     
+   }
+   else { //don't repeat while held down (if key depressed, reset key lock and repeat timer)
+     keyonce_1_9=0; 
+     repeat_1_9=0;
+   }
+        //U Key
+   if (digitalRead(COLUM_15_PIN) == HIGH) { //is colum 15 reading high?   
+     if(keyonce_1_15!=1) { //Has this key been pressed before?
+       if(shft == true || lock == true){ //has shift or lock been pressed?
+         Keyboard.write('U'); //Print value in caps
+       } else if (fctn == true) { //has function been pressed?
+         Keyboard.write('_'); //Print function value
+       } else {// has no mod been pressed?
+         Keyboard.write('u'); //print value in lowercase
+       }
+       keyonce_1_15=1; //lock value
+     }
+     else { //If the lock is engaged (means the user is holding down the key)
+       repeat_1_15++; //add to repeat value 
+       if(repeat_1_15 > repeat_time) { //if the user has held down the key longer than repeat_time  
+        if(shft == true || lock == true){ //has shift or lock been pressed?
+          Keyboard.write('U'); //Print value in caps
+        } else if (fctn == true) { //has function been pressed?
+          Keyboard.write('_'); //Print function value
+        } else {// has no mod been pressed?
+          Keyboard.write('u'); //print value in lowercase
+        }
+        delay(100); //give a little delay time so the spam isn't so intense.
+       }
+     }     
+   }
+   else { //don't repeat while held down (if key depressed, reset key lock and repeat timer)
+     keyonce_1_15=0; 
+     repeat_1_15=0;
+   }
+      //I Key
+   if (digitalRead(COLUM_14_PIN) == HIGH) { //is colum 14 reading high?   
+     if(keyonce_1_14!=1) { //Has this key been pressed before?
+       if(shft == true || lock == true){ //has shift or lock been pressed?
+         Keyboard.write('I'); //Print value in caps
+       } else if (fctn == true) { //has function been pressed?
+         Keyboard.write('?');  //print function value
+       } else {// has no mod been pressed?
+         Keyboard.write('i'); //print value in lowercase
+       }
+       keyonce_1_14=1; //lock value
+     }
+     else { //If the lock is engaged (means the user is holding down the key)
+       repeat_1_14++; //add to repeat value 
+       if(repeat_1_14 > repeat_time) { //if the user has held down the key longer than repeat_time  
+        if(shft == true || lock == true){ //has shift or lock been pressed?
+          Keyboard.write('I'); //Print value in caps
+        } else if (fctn == true) { //has function been pressed?
+          Keyboard.write('?');  //print function value
+        } else {// has no mod been pressed?
+          Keyboard.write('i'); //print value in lowercase
+        }
+        delay(100); //give a little delay time so the spam isn't so intense.
+       }
+     }     
+   }
+   else { //don't repeat while held down (if key depressed, reset key lock and repeat timer)
+     keyonce_1_14=0; 
+     repeat_1_14=0;
+   }
+       //O Key
+   if (digitalRead(COLUM_13_PIN) == HIGH) { //is colum 13 reading high?   
+     if(keyonce_1_13!=1) { //Has this key been pressed before?
+       if(shft == true || lock == true){ //has shift or lock been pressed?
+         Keyboard.write('O'); //Print value in caps
+       } else if (fctn == true) { //has function been pressed?
+         Keyboard.write(39);  //print function value
+       } else {// has no mod been pressed?
+         Keyboard.write('o'); //print value in lowercase
+       }
+       keyonce_1_13=1; //lock value
+     }
+     else { //If the lock is engaged (means the user is holding down the key)
+       repeat_1_13++; //add to repeat value 
+       if(repeat_1_13 > repeat_time) { //if the user has held down the key longer than repeat_time  
+        if(shft == true || lock == true){ //has shift or lock been pressed?
+          Keyboard.write('O'); //Print value in caps
+        } else if (fctn == true) { //has function been pressed?
+          Keyboard.write(39);  //print function value
+        } else {// has no mod been pressed?
+          Keyboard.write('o'); //print value in lowercase
+        }
+        delay(100); //give a little delay time so the spam isn't so intense.
+       }
+     }     
+   }
+   else { //don't repeat while held down (if key depressed, reset key lock and repeat timer)
+     keyonce_1_13=0; 
+     repeat_1_13=0;
+   }
+    //ENTER KEY
+   if (digitalRead(COLUM_12_PIN) == HIGH) { //is colum 12 reading high?   
+     if(keyonce_1_12!=1) { //Has this key been pressed before?
+       Keyboard.write('\n');
+       keyonce_1_12=1; //lock value
+     }
+     else { //If the lock is engaged (means the user is holding down the key)
+       repeat_1_12++; //add to repeat value 
+       if(repeat_1_12 > repeat_time) { //if the user has held down the key longer than repeat_time  
+        Keyboard.write('\n');
+        delay(100); //give a little delay time so the spam isn't so intense.
+       }
+     }     
+   }
+   else { //don't repeat while held down (if key depressed, reset key lock and repeat timer)
+     keyonce_1_12=0; 
+     repeat_1_12=0;
+   }
+         
+//------------------------------------------------ROW 1 END------------------------------------------------
+   digitalWrite(ROW_1,LOW); //row 1 off
+   digitalWrite(ROW_2,HIGH);//row 2 on
+//------------------------------------------------ROW 2------------------------------------------------
+
+   //note, not using COLUM_6_PIN because that colum has no key assigned.
+   
+        //0 Key
+   if (digitalRead(COLUM_8_PIN) == HIGH) { //is colum 8 reading high?   
+     if(keyonce_2_8!=1) { //Has this key been pressed before?
+       if(shft == true || lock == true){ //has shift or lock been pressed?
+         Keyboard.write(')'); //Print value in caps
+       } else if (fctn == true) { //has function been pressed?
+         //HAS NO FUNCTION ASSIGNED
+       } else {// has no mod been pressed?
+         Keyboard.write('0'); //print value in lowercase
+       }
+       keyonce_2_8=1; //lock value
+     }
+     else { //If the lock is engaged (means the user is holding down the key)
+       repeat_2_8++; //add to repeat value 
+       if(repeat_2_8 > repeat_time) { //if the user has held down the key longer than repeat_time  
+        if(shft == true || lock == true){ //has shift or lock been pressed?
+          Keyboard.write(')'); //Print value in caps
+        } else if (fctn == true) { //has function been pressed?
+          //HAS NO FUNCTION ASSIGNED
+        } else {// has no mod been pressed?
+          Keyboard.write('0'); //print value in lowercase
+        }
+        delay(100); //give a little delay time so the spam isn't so intense.
+       }
+     }     
+   }
+   else { //don't repeat while held down (if key depressed, reset key lock and repeat timer)
+     keyonce_2_8=0; 
+     repeat_2_8=0;
+   }
+        //6 Key
+   if (digitalRead(COLUM_9_PIN) == HIGH) { //is colum 9 reading high?   
+     if(keyonce_2_9!=1) { //Has this key been pressed before?
+       if(shft == true || lock == true){ //has shift or lock been pressed?
+         Keyboard.write('^'); //Print value in caps
+       } else if (fctn == true) { //has function been pressed?
+         //HAS NO FUNCTION ASSIGNED
+       } else {// has no mod been pressed?
+         Keyboard.write('6'); //print value in lowercase
+       }
+       keyonce_2_9=1; //lock value
+     }
+     else { //If the lock is engaged (means the user is holding down the key)
+       repeat_2_9++; //add to repeat value 
+       if(repeat_2_9 > repeat_time) { //if the user has held down the key longer than repeat_time  
+        if(shft == true || lock == true){ //has shift or lock been pressed?
+          Keyboard.write('^'); //Print value in caps
+        } else if (fctn == true) { //has function been pressed?
+          //HAS NO FUNCTION ASSIGNED
+        } else {// has no mod been pressed?
+          Keyboard.write('6'); //print value in lowercase
+        }
+        delay(100); //give a little delay time so the spam isn't so intense.
+       }
+     }     
+   }
+   else { //don't repeat while held down (if key depressed, reset key lock and repeat timer)
+     keyonce_2_9=0; 
+     repeat_2_9=0;
+   }
+        //7 Key
+   if (digitalRead(COLUM_15_PIN) == HIGH) { //is colum 15 reading high?   
+     if(keyonce_2_15!=1) { //Has this key been pressed before?
+       if(shft == true || lock == true){ //has shift or lock been pressed?
+         Keyboard.write('&'); //Print value in caps
+       } else if (fctn == true) { //has function been pressed?
+         //HAS NO FUNCTION ASSIGNED
+       } else {// has no mod been pressed?
+         Keyboard.write('7'); //print value in lowercase
+       }
+       keyonce_2_15=1; //lock value
+     }
+     else { //If the lock is engaged (means the user is holding down the key)
+       repeat_2_15++; //add to repeat value 
+       if(repeat_2_15 > repeat_time) { //if the user has held down the key longer than repeat_time  
+        if(shft == true || lock == true){ //has shift or lock been pressed?
+          Keyboard.write('&'); //Print value in caps
+        } else if (fctn == true) { //has function been pressed?
+          //HAS NO FUNCTION ASSIGNED
+        } else {// has no mod been pressed?
+          Keyboard.write('7'); //print value in lowercase
+        }
+        delay(100); //give a little delay time so the spam isn't so intense.
+       }
+     }     
+   }
+   else { //don't repeat while held down (if key depressed, reset key lock and repeat timer)
+     keyonce_2_15=0; 
+     repeat_2_15=0;
+   }
+      //8 Key
+   if (digitalRead(COLUM_14_PIN) == HIGH) { //is colum 14 reading high?   
+     if(keyonce_2_14!=1) { //Has this key been pressed before?
+       if(shft == true || lock == true){ //has shift or lock been pressed?
+         Keyboard.write('*'); //Print value in caps
+       } else if (fctn == true) { //has function been pressed?
+         //HAS NO FUNCTION ASSIGNED
+       } else {// has no mod been pressed?
+         Keyboard.write('8'); //print value in lowercase
+       }
+       keyonce_2_14=1; //lock value
+     }
+     else { //If the lock is engaged (means the user is holding down the key)
+       repeat_2_14++; //add to repeat value 
+       if(repeat_2_14 > repeat_time) { //if the user has held down the key longer than repeat_time  
+        if(shft == true || lock == true){ //has shift or lock been pressed?
+          Keyboard.write('*'); //Print value in caps
+        } else if (fctn == true) { //has function been pressed?
+          //HAS NO FUNCTION ASSIGNED
+        } else {// has no mod been pressed?
+          Keyboard.write('8'); //print value in lowercase
+        }
+        delay(100); //give a little delay time so the spam isn't so intense.
+       }
+     }     
+   }
+   else { //don't repeat while held down (if key depressed, reset key lock and repeat timer)
+     keyonce_2_14=0; 
+     repeat_2_14=0;
+   }
+       //9 Key
+   if (digitalRead(COLUM_13_PIN) == HIGH) { //is colum 13 reading high?   
+     if(keyonce_2_13!=1) { //Has this key been pressed before?
+       if(shft == true || lock == true){ //has shift or lock been pressed?
+         Keyboard.write('('); //Print value in caps
+       } else if (fctn == true) { //has function been pressed?
+   //HAS NO FUNCTION ASSIGNED
+       } else {// has no mod been pressed?
+         Keyboard.write('9'); //print value in lowercase
+       }
+       keyonce_2_13=1; //lock value
+     }
+     else { //If the lock is engaged (means the user is holding down the key)
+       repeat_2_13++; //add to repeat value 
+       if(repeat_2_13 > repeat_time) { //if the user has held down the key longer than repeat_time  
+        if(shft == true || lock == true){ //has shift or lock been pressed?
+          Keyboard.write(')'); //Print value in caps
+        } else if (fctn == true) { //has function been pressed?
+          //HAS NO FUNCTION ASSIGNED
+        } else {// has no mod been pressed?
+          Keyboard.write('9'); //print value in lowercase
+        }
+        delay(100); //give a little delay time so the spam isn't so intense.
+       }
+     }     
+   }
+   else { //don't repeat while held down (if key depressed, reset key lock and repeat timer)
+     keyonce_2_13=0; 
+     repeat_2_13=0;
+   }
+   
+   //note no COLUM_12_PIN because nothing assigned
+   
+//------------------------------------------------ROW 2 END------------------------------------------------   
+   digitalWrite(ROW_2,LOW); //row 2 off
+   digitalWrite(ROW_3,HIGH); //row 3 on
+//------------------------------------------------ROW 3------------------------------------------------   
+   //note, not using COLUM_6_PIN because that colum has no key assigned.
+   
+        //A Key
+   if (digitalRead(COLUM_8_PIN) == HIGH) { //is colum 8 reading high?   
+     if(keyonce_3_8!=1) { //Has this key been pressed before?
+       if(shft == true || lock == true){ //has shift or lock been pressed?
+         Keyboard.write('A'); //Print value in caps
+       } else if (fctn == true) { //has function been pressed?
+         Keyboard.write('|');  //print function value
+       } else {// has no mod been pressed?
+         Keyboard.write('a'); //print value in lowercase
+       }
+       keyonce_3_8=1; //lock value
+     }
+     else { //If the lock is engaged (means the user is holding down the key)
+       repeat_3_8++; //add to repeat value 
+       if(repeat_3_8 > repeat_time) { //if the user has held down the key longer than repeat_time  
+        if(shft == true || lock == true){ //has shift or lock been pressed?
+          Keyboard.write('A'); //Print value in caps
+        } else if (fctn == true) { //has function been pressed?
+          Keyboard.write('|');  //print function value
+        } else {// has no mod been pressed?
+          Keyboard.write('a'); //print value in lowercase
+        }
+        delay(100); //give a little delay time so the spam isn't so intense.
+       }
+     }     
+   }
+   else { //don't repeat while held down (if key depressed, reset key lock and repeat timer)
+     keyonce_3_8=0; 
+     repeat_3_8=0;
+   }
+        //G Key
+   if (digitalRead(COLUM_9_PIN) == HIGH) { //is colum 9 reading high?   
+     if(keyonce_3_9!=1) { //Has this key been pressed before?
+       if(shft == true || lock == true){ //has shift or lock been pressed?
+         Keyboard.write('G'); //Print value in caps
+       } else if (fctn == true) { //has function been pressed?
+         Keyboard.write('}');  //print function value
+       } else {// has no mod been pressed?
+         Keyboard.write('g'); //print value in lowercase
+       }
+       keyonce_3_9=1; //lock value
+     }
+     else { //If the lock is engaged (means the user is holding down the key)
+       repeat_3_9++; //add to repeat value 
+       if(repeat_3_9 > repeat_time) { //if the user has held down the key longer than repeat_time  
+        if(shft == true || lock == true){ //has shift or lock been pressed?
+          Keyboard.write('G'); //Print value in caps
+        } else if (fctn == true) { //has function been pressed?
+          Keyboard.write('}');  //print function value
+        } else {// has no mod been pressed?
+          Keyboard.write('g'); //print value in lowercase
+        }
+        delay(100); //give a little delay time so the spam isn't so intense.
+       }
+     }     
+   }
+   else { //don't repeat while held down (if key depressed, reset key lock and repeat timer)
+     keyonce_3_9=0; 
+     repeat_3_9=0;
+   }
+        //F Key
+   if (digitalRead(COLUM_15_PIN) == HIGH) { //is colum 15 reading high?   
+     if(keyonce_3_15!=1) { //Has this key been pressed before?
+       if(shft == true || lock == true){ //has shift or lock been pressed?
+         Keyboard.write('F'); //Print value in caps
+       } else if (fctn == true) { //has function been pressed?
+         Keyboard.write('{'); //Print function value
+       } else {// has no mod been pressed?
+         Keyboard.write('f'); //print value in lowercase
+       }
+       keyonce_3_15=1; //lock value
+     }
+     else { //If the lock is engaged (means the user is holding down the key)
+       repeat_3_15++; //add to repeat value 
+       if(repeat_3_15 > repeat_time) { //if the user has held down the key longer than repeat_time  
+        if(shft == true || lock == true){ //has shift or lock been pressed?
+          Keyboard.write('F'); //Print value in caps
+        } else if (fctn == true) { //has function been pressed?
+          Keyboard.write('{'); //Print function value
+        } else {// has no mod been pressed?
+          Keyboard.write('f'); //print value in lowercase
+        }
+        delay(100); //give a little delay time so the spam isn't so intense.
+       }
+     }     
+   }
+   else { //don't repeat while held down (if key depressed, reset key lock and repeat timer)
+     keyonce_3_15=0; 
+     repeat_3_15=0;
+   }
+      //D Key
+   if (digitalRead(COLUM_14_PIN) == HIGH) { //is colum 14 reading high?   
+     if(keyonce_3_14!=1) { //Has this key been pressed before?
+       if(shft == true || lock == true){ //has shift or lock been pressed?
+         Keyboard.write('D'); //Print value in caps
+       } else if (fctn == true) { //has function been pressed?
+         Keyboard.write(KEY_RIGHT_ARROW);  //print function value
+       } else {// has no mod been pressed?
+         Keyboard.write('d'); //print value in lowercase
+       }
+       keyonce_3_14=1; //lock value
+     }
+     else { //If the lock is engaged (means the user is holding down the key)
+       repeat_3_14++; //add to repeat value 
+       if(repeat_3_14 > repeat_time) { //if the user has held down the key longer than repeat_time  
+        if(shft == true || lock == true){ //has shift or lock been pressed?
+          Keyboard.write('D'); //Print value in caps
+        } else if (fctn == true) { //has function been pressed?
+          Keyboard.write(KEY_RIGHT_ARROW);  //print function value
+        } else {// has no mod been pressed?
+          Keyboard.write('d'); //print value in lowercase
+        }
+        delay(100); //give a little delay time so the spam isn't so intense.
+       }
+     }     
+   }
+   else { //don't repeat while held down (if key depressed, reset key lock and repeat timer)
+     keyonce_3_14=0; 
+     repeat_3_14=0;
+   }
+       //S Key
+   if (digitalRead(COLUM_13_PIN) == HIGH) { //is colum 13 reading high?   
+     if(keyonce_3_13!=1) { //Has this key been pressed before?
+       if(shft == true || lock == true){ //has shift or lock been pressed?
+         Keyboard.write('S'); //Print value in caps
+       } else if (fctn == true) { //has function been pressed?
+         Keyboard.write(KEY_LEFT_ARROW);  //print function value
+       } else {// has no mod been pressed?
+         Keyboard.write('s'); //print value in lowercase
+       }
+       keyonce_3_13=1; //lock value
+     }
+     else { //If the lock is engaged (means the user is holding down the key)
+       repeat_3_13++; //add to repeat value 
+       if(repeat_3_13 > repeat_time) { //if the user has held down the key longer than repeat_time  
+        if(shft == true || lock == true){ //has shift or lock been pressed?
+          Keyboard.write('S'); //Print value in caps
+        } else if (fctn == true) { //has function been pressed?
+          Keyboard.write(KEY_LEFT_ARROW);  //print function value
+        } else {// has no mod been pressed?
+          Keyboard.write('s'); //print value in lowercase
+        }
+        delay(100); //give a little delay time so the spam isn't so intense.
+       }
+     }     
+   }
+   else { //don't repeat while held down (if key depressed, reset key lock and repeat timer)
+     keyonce_3_13=0; 
+     repeat_3_13=0;
+   }
+//------------------------------------------------ROW 3 END------------------------------------------------   
+   digitalWrite(ROW_3,LOW); //row 3 off
+   digitalWrite(ROW_4,HIGH); //row 3 on
+//------------------------------------------------ROW 4----------------------------------------------------      
+   //note, not using COLUM_6_PIN because that colum has no key assigned.
+   
+        //; Key
+   if (digitalRead(COLUM_8_PIN) == HIGH) { //is colum 8 reading high?   
+     if(keyonce_4_8!=1) { //Has this key been pressed before?
+       if(shft == true || lock == true){ //has shift or lock been pressed?
+         Keyboard.write(':'); //Print value in caps
+       } else if (fctn == true) { //has function been pressed?
+         //HAS NO FUNCTION ASSIGNED
+       } else {// has no mod been pressed?
+         Keyboard.write(';'); //print value in lowercase
+       }
+       keyonce_4_8=1; //lock value
+     }
+     else { //If the lock is engaged (means the user is holding down the key)
+       repeat_4_8++; //add to repeat value 
+       if(repeat_4_8 > repeat_time) { //if the user has held down the key longer than repeat_time  
+        if(shft == true || lock == true){ //has shift or lock been pressed?
+          Keyboard.write(':'); //Print value in caps
+        } else if (fctn == true) { //has function been pressed?
+          //HAS NO FUNCTION ASSIGNED
+        } else {// has no mod been pressed?
+          Keyboard.write(';'); //print value in lowercase
+        }
+        delay(100); //give a little delay time so the spam isn't so intense.
+       }
+     }     
+   }
+   else { //don't repeat while held down (if key depressed, reset key lock and repeat timer)
+     keyonce_4_8=0; 
+     repeat_4_8=0;
+   }
+        //H Key
+   if (digitalRead(COLUM_9_PIN) == HIGH) { //is colum 9 reading high?   
+     if(keyonce_4_9!=1) { //Has this key been pressed before?
+       if(shft == true || lock == true){ //has shift or lock been pressed?
+         Keyboard.write('H'); //Print value in caps
+       } else if (fctn == true) { //has function been pressed?
+         //HAS NO FUNCTION ASSIGNED
+       } else {// has no mod been pressed?
+         Keyboard.write('h'); //print value in lowercase
+       }
+       keyonce_4_9=1; //lock value
+     }
+     else { //If the lock is engaged (means the user is holding down the key)
+       repeat_4_9++; //add to repeat value 
+       if(repeat_4_9 > repeat_time) { //if the user has held down the key longer than repeat_time  
+        if(shft == true || lock == true){ //has shift or lock been pressed?
+          Keyboard.write('H'); //Print value in caps
+        } else if (fctn == true) { //has function been pressed?
+          //HAS NO FUNCTION ASSIGNED
+        } else {// has no mod been pressed?
+          Keyboard.write('h'); //print value in lowercase
+        }
+        delay(100); //give a little delay time so the spam isn't so intense.
+       }
+     }     
+   }
+   else { //don't repeat while held down (if key depressed, reset key lock and repeat timer)
+     keyonce_4_9=0; 
+     repeat_4_9=0;
+   }
+        //J Key
+   if (digitalRead(COLUM_15_PIN) == HIGH) { //is colum 15 reading high?   
+     if(keyonce_4_15!=1) { //Has this key been pressed before?
+       if(shft == true || lock == true){ //has shift or lock been pressed?
+         Keyboard.write('J'); //Print value in caps
+       } else if (fctn == true) { //has function been pressed?
+         //HAS NO FUNCTION ASSIGNED
+       } else {// has no mod been pressed?
+         Keyboard.write('j'); //print value in lowercase
+       }
+       keyonce_4_15=1; //lock value
+     }
+     else { //If the lock is engaged (means the user is holding down the key)
+       repeat_4_15++; //add to repeat value 
+       if(repeat_4_15 > repeat_time) { //if the user has held down the key longer than repeat_time  
+        if(shft == true || lock == true){ //has shift or lock been pressed?
+          Keyboard.write('J'); //Print value in caps
+        } else if (fctn == true) { //has function been pressed?
+          //HAS NO FUNCTION ASSIGNED
+        } else {// has no mod been pressed?
+          Keyboard.write('j'); //print value in lowercase
+        }
+        delay(100); //give a little delay time so the spam isn't so intense.
+       }
+     }     
+   }
+   else { //don't repeat while held down (if key depressed, reset key lock and repeat timer)
+     keyonce_4_15=0; 
+     repeat_4_15=0;
+   }
+      //K Key
+   if (digitalRead(COLUM_14_PIN) == HIGH) { //is colum 14 reading high?   
+     if(keyonce_4_14!=1) { //Has this key been pressed before?
+       if(shft == true || lock == true){ //has shift or lock been pressed?
+         Keyboard.write('K'); //Print value in caps
+       } else if (fctn == true) { //has function been pressed?
+         //HAS NO FUNCTION ASSIGNED
+       } else {// has no mod been pressed?
+         Keyboard.write('k'); //print value in lowercase
+       }
+       keyonce_4_14=1; //lock value
+     }
+     else { //If the lock is engaged (means the user is holding down the key)
+       repeat_4_14++; //add to repeat value 
+       if(repeat_4_14 > repeat_time) { //if the user has held down the key longer than repeat_time  
+        if(shft == true || lock == true){ //has shift or lock been pressed?
+          Keyboard.write('K'); //Print value in caps
+        } else if (fctn == true) { //has function been pressed?
+          //HAS NO FUNCTION ASSIGNED
+        } else {// has no mod been pressed?
+          Keyboard.write('k'); //print value in lowercase
+        }
+        delay(100); //give a little delay time so the spam isn't so intense.
+       }
+     }     
+   }
+   else { //don't repeat while held down (if key depressed, reset key lock and repeat timer)
+     keyonce_4_14=0; 
+     repeat_4_14=0;
+   }
+       //L Key
+   if (digitalRead(COLUM_13_PIN) == HIGH) { //is colum 13 reading high?   
+     if(keyonce_4_13!=1) { //Has this key been pressed before?
+       if(shft == true || lock == true){ //has shift or lock been pressed?
+         Keyboard.write('L'); //Print value in caps
+       } else if (fctn == true) { //has function been pressed?
+         //HAS NO FUNCTION ASSIGNED
+       } else {// has no mod been pressed?
+         Keyboard.write('l'); //print value in lowercase
+       }
+       keyonce_4_13=1; //lock value
+     }
+     else { //If the lock is engaged (means the user is holding down the key)
+       repeat_4_13++; //add to repeat value 
+       if(repeat_4_13 > repeat_time) { //if the user has held down the key longer than repeat_time  
+        if(shft == true || lock == true){ //has shift or lock been pressed?
+          Keyboard.write('L'); //Print value in caps
+        } else if (fctn == true) { //has function been pressed?
+          //HAS NO FUNCTION ASSIGNED
+        } else {// has no mod been pressed?
+          Keyboard.write('l'); //print value in lowercase
+        }
+        delay(100); //give a little delay time so the spam isn't so intense.
+       }
+     }     
+   }
+   else { //don't repeat while held down (if key depressed, reset key lock and repeat timer)
+     keyonce_4_13=0; 
+     repeat_4_13=0;
+   }
+    //SPACE KEY
+   if (digitalRead(COLUM_12_PIN) == HIGH) { //is colum 12 reading high?   
+     if(keyonce_4_12!=1) { //Has this key been pressed before?
+        if(ctrl == true) { //has the control key been pressed?
+          Keyboard.write(KEY_BACKSPACE);
+        }
+        else { //has no mod keys been pressed?
+          Keyboard.write(' ');  
+        }
+       keyonce_4_12=1; //lock value
+     }
+     else { //If the lock is engaged (means the user is holding down the key)
+       repeat_4_12++; //add to repeat value 
+       if(repeat_4_12 > repeat_time) { //if the user has held down the key longer than repeat_time  
+        Keyboard.write(' ');
+        delay(100); //give a little delay time so the spam isn't so intense.
+       }
+     }     
+   }
+   else { //don't repeat while held down (if key depressed, reset key lock and repeat timer)
+     keyonce_4_12=0; 
+     repeat_4_12=0;
+   }
+
+//------------------------------------------------ROW 4 END -----------------------------------------------
+   digitalWrite(ROW_4,LOW); //row 4 off
+   digitalWrite(ROW_5,HIGH); //row 5 on
+//------------------------------------------------ROW 5----------------------------------------------------
+   //note, not using COLUM_6_PIN because that colum has no key assigned.
+   
+        //- Key
+   if (digitalRead(COLUM_8_PIN) == HIGH) { //is colum 8 reading high?   
+     if(keyonce_5_8!=1) { //Has this key been pressed before?
+       if(shft == true || lock == true){ //has shift or lock been pressed?
+         Keyboard.write('-'); //Print value in caps
+       } else if (fctn == true) { //has function been pressed?
+         //HAS NO FUNCTION ASSIGNED
+       } else {// has no mod been pressed?
+         Keyboard.write('/'); //print value in lowercase
+       }
+       keyonce_5_8=1; //lock value
+     }
+     else { //If the lock is engaged (means the user is holding down the key)
+       repeat_5_8++; //add to repeat value 
+       if(repeat_5_8 > repeat_time) { //if the user has held down the key longer than repeat_time  
+        if(shft == true || lock == true){ //has shift or lock been pressed?
+          Keyboard.write('-'); //Print value in caps
+        } else if (fctn == true) { //has function been pressed?
+          //HAS NO FUNCTION ASSIGNED
+        } else {// has no mod been pressed?
+          Keyboard.write('/'); //print value in lowercase
+        }
+        delay(100); //give a little delay time so the spam isn't so intense.
+       }
+     }     
+   }
+   else { //don't repeat while held down (if key depressed, reset key lock and repeat timer)
+     keyonce_5_8=0; 
+     repeat_5_8=0;
+   }
+        //N Key
+   if (digitalRead(COLUM_9_PIN) == HIGH) { //is colum 9 reading high?   
+     if(keyonce_5_9!=1) { //Has this key been pressed before?
+       if(shft == true || lock == true){ //has shift or lock been pressed?
+         Keyboard.write('N'); //Print value in caps
+       } else if (fctn == true) { //has function been pressed?
+         //HAS NO FUNCTION ASSIGNED
+       } else {// has no mod been pressed?
+         Keyboard.write('n'); //print value in lowercase
+       }
+       keyonce_5_9=1; //lock value
+     }
+     else { //If the lock is engaged (means the user is holding down the key)
+       repeat_5_9++; //add to repeat value 
+       if(repeat_5_9 > repeat_time) { //if the user has held down the key longer than repeat_time  
+        if(shft == true || lock == true){ //has shift or lock been pressed?
+          Keyboard.write('N'); //Print value in caps
+        } else if (fctn == true) { //has function been pressed?
+          //HAS NO FUNCTION ASSIGNED
+        } else {// has no mod been pressed?
+          Keyboard.write('n'); //print value in lowercase
+        }
+        delay(100); //give a little delay time so the spam isn't so intense.
+       }
+     }     
+   }
+   else { //don't repeat while held down (if key depressed, reset key lock and repeat timer)
+     keyonce_5_9=0; 
+     repeat_5_9=0;
+   }
+        //M Key
+   if (digitalRead(COLUM_15_PIN) == HIGH) { //is colum 15 reading high?   
+     if(keyonce_5_15!=1) { //Has this key been pressed before?
+       if(shft == true || lock == true){ //has shift or lock been pressed?
+         Keyboard.write('M'); //Print value in caps
+       } else if (fctn == true) { //has function been pressed?
+         //HAS NO FUNCTION ASSIGNED
+       } else {// has no mod been pressed?
+         Keyboard.write('m'); //print value in lowercase
+       }
+       keyonce_5_15=1; //lock value
+     }
+     else { //If the lock is engaged (means the user is holding down the key)
+       repeat_5_15++; //add to repeat value 
+       if(repeat_5_15 > repeat_time) { //if the user has held down the key longer than repeat_time  
+        if(shft == true || lock == true){ //has shift or lock been pressed?
+          Keyboard.write('M'); //Print value in caps
+        } else if (fctn == true) { //has function been pressed?
+          //HAS NO FUNCTION ASSIGNED
+        } else {// has no mod been pressed?
+          Keyboard.write('m'); //print value in lowercase
+        }
+        delay(100); //give a little delay time so the spam isn't so intense.
+       }
+     }     
+   }
+   else { //don't repeat while held down (if key depressed, reset key lock and repeat timer)
+     keyonce_5_15=0; 
+     repeat_5_15=0;
+   }
+      //, Key
+   if (digitalRead(COLUM_14_PIN) == HIGH) { //is colum 14 reading high?   
+     if(keyonce_5_14!=1) { //Has this key been pressed before?
+       if(shft == true || lock == true){ //has shift or lock been pressed?
+         Keyboard.write(','); //Print value in caps
+       } else if (fctn == true) { //has function been pressed?
+         //HAS NO FUNCTION ASSIGNED
+       } else {// has no mod been pressed?
+         Keyboard.write('<'); //print value in lowercase
+       }
+       keyonce_5_14=1; //lock value
+     }
+     else { //If the lock is engaged (means the user is holding down the key)
+       repeat_5_14++; //add to repeat value 
+       if(repeat_5_14 > repeat_time) { //if the user has held down the key longer than repeat_time  
+        if(shft == true || lock == true){ //has shift or lock been pressed?
+          Keyboard.write(','); //Print value in caps
+        } else if (fctn == true) { //has function been pressed?
+          //HAS NO FUNCTION ASSIGNED
+        } else {// has no mod been pressed?
+          Keyboard.write('<'); //print value in lowercase
+        }
+        delay(100); //give a little delay time so the spam isn't so intense.
+       }
+     }     
+   }
+   else { //don't repeat while held down (if key depressed, reset key lock and repeat timer)
+     keyonce_5_14=0; 
+     repeat_5_14=0;
+   }
+       //. Key
+   if (digitalRead(COLUM_13_PIN) == HIGH) { //is colum 13 reading high?   
+     if(keyonce_5_13!=1) { //Has this key been pressed before?
+       if(shft == true || lock == true){ //has shift or lock been pressed?
+         Keyboard.write('>'); //Print value in caps
+       } else if (fctn == true) { //has function been pressed?
+         //HAS NO FUNCTION ASSIGNED
+       } else {// has no mod been pressed?
+         Keyboard.write('.'); //print value in lowercase
+       }
+       keyonce_5_13=1; //lock value
+     }
+     else { //If the lock is engaged (means the user is holding down the key)
+       repeat_5_13++; //add to repeat value 
+       if(repeat_5_13 > repeat_time) { //if the user has held down the key longer than repeat_time  
+        if(shft == true || lock == true){ //has shift or lock been pressed?
+          Keyboard.write('>'); //Print value in caps
+        } else if (fctn == true) { //has function been pressed?
+          //HAS NO FUNCTION ASSIGNED
+        } else {// has no mod been pressed?
+          Keyboard.write('.'); //print value in lowercase
+        }
+        delay(100); //give a little delay time so the spam isn't so intense.
+       }
+     }     
+   }
+   else { //don't repeat while held down (if key depressed, reset key lock and repeat timer)
+     keyonce_5_13=0; 
+     repeat_5_13=0;
+   }
+
+       //= Key
+   if (digitalRead(COLUM_12_PIN) == HIGH) { //is colum 12 reading high?   
+     if(keyonce_5_12!=1) { //Has this key been pressed before?
+       if(shft == true || lock == true){ //has shift or lock been pressed?
+         Keyboard.write('+'); //Print value in caps
+       } else if (fctn == true) { //has function been pressed?
+         //HAS NO FUNCTION ASSIGNED
+       } else {// has no mod been pressed?
+         Keyboard.write('='); //print value in lowercase
+       }
+       keyonce_5_12=1; //lock value
+     }
+     else { //If the lock is engaged (means the user is holding down the key)
+       repeat_5_12++; //add to repeat value 
+       if(repeat_5_12 > repeat_time) { //if the user has held down the key longer than repeat_time  
+        if(shft == true || lock == true){ //has shift or lock been pressed?
+          Keyboard.write('+'); //Print value in caps
+        } else if (fctn == true) { //has function been pressed?
+          //HAS NO FUNCTION ASSIGNED
+        } else {// has no mod been pressed?
+          Keyboard.write('='); //print value in lowercase
+        }
+        delay(100); //give a little delay time so the spam isn't so intense.
+       }
+     }     
+   }
+   else { //don't repeat while held down (if key depressed, reset key lock and repeat timer)
+     keyonce_5_12=0; 
+     repeat_5_12=0;
+   }   
+
+//------------------------------------------------ROW 5 END----------------------------------------------------
+   digitalWrite(ROW_5,LOW); //row 5 off
+   digitalWrite(ROW_7,HIGH); //row 7 on
+//------------------------------------------------ROW 7----------------------------------------------------
+   //note, not using COLUM_6_PIN because that colum has no key assigned.
+   
+        //1 Key
+   if (digitalRead(COLUM_8_PIN) == HIGH) { //is colum 8 reading high?   
+     if(keyonce_7_8!=1) { //Has this key been pressed before?
+       if(shft == true || lock == true){ //has shift or lock been pressed?
+         Keyboard.write('!'); //Print value in caps
+       } else if (fctn == true) { //has function been pressed?
+         //HAS NO FUNCTION ASSIGNED
+       } else {// has no mod been pressed?
+         Keyboard.write('1'); //print value in lowercase
+       }
+       keyonce_7_8=1; //lock value
+     }
+     else { //If the lock is engaged (means the user is holding down the key)
+       repeat_7_8++; //add to repeat value 
+       if(repeat_7_8 > repeat_time) { //if the user has held down the key longer than repeat_time  
+        if(shft == true || lock == true){ //has shift or lock been pressed?
+          Keyboard.write('!'); //Print value in caps
+        } else if (fctn == true) { //has function been pressed?
+          //HAS NO FUNCTION ASSIGNED
+        } else {// has no mod been pressed?
+          Keyboard.write('1'); //print value in lowercase
+        }
+        delay(100); //give a little delay time so the spam isn't so intense.
+       }
+     }     
+   }
+   else { //don't repeat while held down (if key depressed, reset key lock and repeat timer)
+     keyonce_7_8=0; 
+     repeat_7_8=0;
+   }
+        //5 Key
+   if (digitalRead(COLUM_9_PIN) == HIGH) { //is colum 9 reading high?   
+     if(keyonce_7_9!=1) { //Has this key been pressed before?
+       if(shft == true || lock == true){ //has shift or lock been pressed?
+         Keyboard.write('%'); //Print value in caps
+       } else if (fctn == true) { //has function been pressed?
+         //HAS NO FUNCTION ASSIGNED
+       } else {// has no mod been pressed?
+         Keyboard.write('5'); //print value in lowercase
+       }
+       keyonce_7_9=1; //lock value
+     }
+     else { //If the lock is engaged (means the user is holding down the key)
+       repeat_7_9++; //add to repeat value 
+       if(repeat_7_9 > repeat_time) { //if the user has held down the key longer than repeat_time  
+        if(shft == true || lock == true){ //has shift or lock been pressed?
+          Keyboard.write('%'); //Print value in caps
+        } else if (fctn == true) { //has function been pressed?
+          //HAS NO FUNCTION ASSIGNED
+        } else {// has no mod been pressed?
+          Keyboard.write('5'); //print value in lowercase
+        }
+        delay(100); //give a little delay time so the spam isn't so intense.
+       }
+     }     
+   }
+   else { //don't repeat while held down (if key depressed, reset key lock and repeat timer)
+     keyonce_7_9=0; 
+     repeat_7_9=0;
+   }
+        //4 Key
+   if (digitalRead(COLUM_15_PIN) == HIGH) { //is colum 15 reading high?   
+     if(keyonce_7_15!=1) { //Has this key been pressed before?
+       if(shft == true || lock == true){ //has shift or lock been pressed?
+         Keyboard.write('$'); //Print value in caps
+       } else if (fctn == true) { //has function been pressed?
+         //HAS NO FUNCTION ASSIGNED
+       } else {// has no mod been pressed?
+         Keyboard.write('4'); //print value in lowercase
+       }
+       keyonce_7_15=1; //lock value
+     }
+     else { //If the lock is engaged (means the user is holding down the key)
+       repeat_7_15++; //add to repeat value 
+       if(repeat_7_15 > repeat_time) { //if the user has held down the key longer than repeat_time  
+        if(shft == true || lock == true){ //has shift or lock been pressed?
+          Keyboard.write('$'); //Print value in caps
+        } else if (fctn == true) { //has function been pressed?
+          //HAS NO FUNCTION ASSIGNED
+        } else {// has no mod been pressed?
+          Keyboard.write('4'); //print value in lowercase
+        }
+        delay(100); //give a little delay time so the spam isn't so intense.
+       }
+     }     
+   }
+   else { //don't repeat while held down (if key depressed, reset key lock and repeat timer)
+     keyonce_7_15=0; 
+     repeat_7_15=0;
+   }
+      //3 Key
+   if (digitalRead(COLUM_14_PIN) == HIGH) { //is colum 14 reading high?   
+     if(keyonce_7_14!=1) { //Has this key been pressed before?
+       if(shft == true || lock == true){ //has shift or lock been pressed?
+         Keyboard.write('#'); //Print value in caps
+       } else if (fctn == true) { //has function been pressed?
+         //HAS NO FUNCTION ASSIGNED
+       } else {// has no mod been pressed?
+         Keyboard.write('3'); //print value in lowercase
+       }
+       keyonce_7_14=1; //lock value
+     }
+     else { //If the lock is engaged (means the user is holding down the key)
+       repeat_7_14++; //add to repeat value 
+       if(repeat_7_14 > repeat_time) { //if the user has held down the key longer than repeat_time  
+        if(shft == true || lock == true){ //has shift or lock been pressed?
+          Keyboard.write(','); //Print value in caps
+        } else if (fctn == true) { //has function been pressed?
+          //HAS NO FUNCTION ASSIGNED
+        } else {// has no mod been pressed?
+          Keyboard.write('<'); //print value in lowercase
+        }
+        delay(100); //give a little delay time so the spam isn't so intense.
+       }
+     }     
+   }
+   else { //don't repeat while held down (if key depressed, reset key lock and repeat timer)
+     keyonce_7_14=0; 
+     repeat_7_14=0;
+   }
+       //2 Key
+   if (digitalRead(COLUM_13_PIN) == HIGH) { //is colum 13 reading high?   
+     if(keyonce_7_13!=1) { //Has this key been pressed before?
+       if(shft == true || lock == true){ //has shift or lock been pressed?
+         Keyboard.write('@'); //Print value in caps
+       } else if (fctn == true) { //has function been pressed?
+         //HAS NO FUNCTION ASSIGNED
+       } else {// has no mod been pressed?
+         Keyboard.write('2'); //print value in lowercase
+       }
+       keyonce_7_13=1; //lock value
+     }
+     else { //If the lock is engaged (means the user is holding down the key)
+       repeat_7_13++; //add to repeat value 
+       if(repeat_7_13 > repeat_time) { //if the user has held down the key longer than repeat_time  
+        if(shft == true || lock == true){ //has shift or lock been pressed?
+          Keyboard.write('@'); //Print value in caps
+        } else if (fctn == true) { //has function been pressed?
+          //HAS NO FUNCTION ASSIGNED
+        } else {// has no mod been pressed?
+          Keyboard.write('2'); //print value in lowercase
+        }
+        delay(100); //give a little delay time so the spam isn't so intense.
+       }
+     }     
+   }
+   else { //don't repeat while held down (if key depressed, reset key lock and repeat timer)
+     keyonce_7_13=0; 
+     repeat_7_13=0;
+   }
+//------------------------------------------------ROW 7 END----------------------------------------------------
+   digitalWrite(ROW_7,LOW); //row 7 off
+   digitalWrite(ROW_10,HIGH); //row 10 on
+//------------------------------------------------ROW 10----------------------------------------------------
+   //note, not using COLUM_6_PIN because that colum has no key assigned.
+   
+        //Q Key
+   if (digitalRead(COLUM_8_PIN) == HIGH) { //is colum 8 reading high?   
+     if(keyonce_10_8!=1) { //Has this key been pressed before?
+       if(shft == true || lock == true){ //has shift or lock been pressed?
+         Keyboard.write('Q'); //Print value in caps
+       } else if (fctn == true) { //has function been pressed?
+         //HAS NO FUNCTION ASSIGNED
+       } else {// has no mod been pressed?
+         Keyboard.write('q'); //print value in lowercase
+       }
+       keyonce_10_8=1; //lock value
+     }
+     else { //If the lock is engaged (means the user is holding down the key)
+       repeat_10_8++; //add to repeat value 
+       if(repeat_10_8 > repeat_time) { //if the user has held down the key longer than repeat_time  
+        if(shft == true || lock == true){ //has shift or lock been pressed?
+          Keyboard.write('Q'); //Print value in caps
+        } else if (fctn == true) { //has function been pressed?
+          //HAS NO FUNCTION ASSIGNED
+        } else {// has no mod been pressed?
+          Keyboard.write('q'); //print value in lowercase
+        }
+        delay(100); //give a little delay time so the spam isn't so intense.
+       }
+     }     
+   }
+   else { //don't repeat while held down (if key depressed, reset key lock and repeat timer)
+     keyonce_10_8=0; 
+     repeat_10_8=0;
+   }
+        //T Key
+   if (digitalRead(COLUM_9_PIN) == HIGH) { //is colum 9 reading high?   
+     if(keyonce_10_9!=1) { //Has this key been pressed before?
+       if(shft == true || lock == true){ //has shift or lock been pressed?
+         Keyboard.write('T'); //Print value in caps
+       } else if (fctn == true) { //has function been pressed?
+         Keyboard.write(']'); //Print function value
+       } else {// has no mod been pressed?
+         Keyboard.write('t'); //print value in lowercase
+       }
+       keyonce_10_9=1; //lock value
+     }
+     else { //If the lock is engaged (means the user is holding down the key)
+       repeat_10_9++; //add to repeat value 
+       if(repeat_10_9 > repeat_time) { //if the user has held down the key longer than repeat_time  
+        if(shft == true || lock == true){ //has shift or lock been pressed?
+          Keyboard.write('T'); //Print value in caps
+        } else if (fctn == true) { //has function been pressed?
+          Keyboard.write(']'); //Print function value
+        } else {// has no mod been pressed?
+          Keyboard.write('t'); //print value in lowercase
+        }
+        delay(100); //give a little delay time so the spam isn't so intense.
+       }
+     }     
+   }
+   else { //don't repeat while held down (if key depressed, reset key lock and repeat timer)
+     keyonce_10_9=0; 
+     repeat_10_9=0;
+   }
+        //R Key
+   if (digitalRead(COLUM_15_PIN) == HIGH) { //is colum 15 reading high?   
+     if(keyonce_10_15!=1) { //Has this key been pressed before?
+       if(shft == true || lock == true){ //has shift or lock been pressed?
+         Keyboard.write('R'); //Print value in caps
+       } else if (fctn == true) { //has function been pressed?
+         Keyboard.write('['); //Print function value
+       } else {// has no mod been pressed?
+         Keyboard.write('r'); //print value in lowercase
+       }
+       keyonce_10_15=1; //lock value
+     }
+     else { //If the lock is engaged (means the user is holding down the key)
+       repeat_10_15++; //add to repeat value 
+       if(repeat_10_15 > repeat_time) { //if the user has held down the key longer than repeat_time  
+        if(shft == true || lock == true){ //has shift or lock been pressed?
+          Keyboard.write('R'); //Print value in caps
+        } else if (fctn == true) { //has function been pressed?
+          Keyboard.write('['); //Print function value
+        } else {// has no mod been pressed?
+          Keyboard.write('r'); //print value in lowercase
+        }
+        delay(100); //give a little delay time so the spam isn't so intense.
+       }
+     }     
+   }
+   else { //don't repeat while held down (if key depressed, reset key lock and repeat timer)
+     keyonce_10_15=0; 
+     repeat_10_15=0;
+   }
+      //E Key
+   if (digitalRead(COLUM_14_PIN) == HIGH) { //is colum 14 reading high?   
+     if(keyonce_10_14!=1) { //Has this key been pressed before?
+       if(shft == true || lock == true){ //has shift or lock been pressed?
+         Keyboard.write('E'); //Print value in caps
+       } else if (fctn == true) { //has function been pressed?
+         Keyboard.write(KEY_UP_ARROW); //Print function value
+       } else {// has no mod been pressed?
+         Keyboard.write('e'); //print value in lowercase
+       }
+       keyonce_10_14=1; //lock value
+     }
+     else { //If the lock is engaged (means the user is holding down the key)
+       repeat_10_14++; //add to repeat value 
+       if(repeat_10_14 > repeat_time) { //if the user has held down the key longer than repeat_time  
+        if(shft == true || lock == true){ //has shift or lock been pressed?
+          Keyboard.write('E'); //Print value in caps
+        } else if (fctn == true) { //has function been pressed?
+          Keyboard.write(KEY_UP_ARROW); //Print function value
+        } else {// has no mod been pressed?
+          Keyboard.write('e'); //print value in lowercase
+        }
+        delay(100); //give a little delay time so the spam isn't so intense.
+       }
+     }     
+   }
+   else { //don't repeat while held down (if key depressed, reset key lock and repeat timer)
+     keyonce_10_14=0; 
+     repeat_10_14=0;
+   }
+       //W Key
+   if (digitalRead(COLUM_13_PIN) == HIGH) { //is colum 13 reading high?   
+     if(keyonce_10_13!=1) { //Has this key been pressed before?
+       if(shft == true || lock == true){ //has shift or lock been pressed?
+         Keyboard.write('W'); //Print value in caps
+       } else if (fctn == true) { //has function been pressed?
+         Keyboard.write('~'); //Print function value
+       } else {// has no mod been pressed?
+         Keyboard.write('w'); //print value in lowercase
+       }
+       keyonce_10_13=1; //lock value
+     }
+     else { //If the lock is engaged (means the user is holding down the key)
+       repeat_10_13++; //add to repeat value 
+       if(repeat_10_13 > repeat_time) { //if the user has held down the key longer than repeat_time  
+        if(shft == true || lock == true){ //has shift or lock been pressed?
+          Keyboard.write('W'); //Print value in caps
+        } else if (fctn == true) { //has function been pressed?
+          Keyboard.write('~'); //Print function value
+        } else {// has no mod been pressed?
+          Keyboard.write('w'); //print value in lowercase
+        }
+        delay(100); //give a little delay time so the spam isn't so intense.
+       }
+     }     
+   }
+   else { //don't repeat while held down (if key depressed, reset key lock and repeat timer)
+     keyonce_10_13=0; 
+     repeat_10_13=0;
+   }
+
+//------------------------------------------------ROW 10 END----------------------------------------------------
+   digitalWrite(ROW_10,LOW); //row 10 off
+   digitalWrite(ROW_11,HIGH); //row 11 on
+//------------------------------------------------ROW 11----------------------------------------------------
+   //note, not using COLUM_6_PIN because that colum has no key assigned.
+   
+        //Z Key
+   if (digitalRead(COLUM_8_PIN) == HIGH) { //is colum 8 reading high?   
+     if(keyonce_11_8!=1) { //Has this key been pressed before?
+       if(shft == true || lock == true){ //has shift or lock been pressed?
+         Keyboard.write('Z'); //Print value in caps
+       } else if (fctn == true) { //has function been pressed?
+         Keyboard.write(92); //Print value in caps
+       } else {// has no mod been pressed?
+         Keyboard.write('z'); //print value in lowercase
+       }
+       keyonce_11_8=1; //lock value
+     }
+     else { //If the lock is engaged (means the user is holding down the key)
+       repeat_11_8++; //add to repeat value 
+       if(repeat_11_8 > repeat_time) { //if the user has held down the key longer than repeat_time  
+        if(shft == true || lock == true){ //has shift or lock been pressed?
+          Keyboard.write('Z'); //Print value in caps
+        } else if (fctn == true) { //has function been pressed?
+          Keyboard.write(92); //Print function value
+        } else {// has no mod been pressed?
+          Keyboard.write('z'); //print value in lowercase
+        }
+        delay(100); //give a little delay time so the spam isn't so intense.
+       }
+     }     
+   }
+   else { //don't repeat while held down (if key depressed, reset key lock and repeat timer)
+     keyonce_11_8=0; 
+     repeat_11_8=0;
+   }
+        //B Key
+   if (digitalRead(COLUM_9_PIN) == HIGH) { //is colum 9 reading high?   
+     if(keyonce_11_9!=1) { //Has this key been pressed before?
+       if(shft == true || lock == true){ //has shift or lock been pressed?
+         Keyboard.write('B'); //Print value in caps
+       } else if (fctn == true) { //has function been pressed?
+         //HAS NO FUNCTION ASSIGNED 
+       } else {// has no mod been pressed?
+         Keyboard.write('b'); //print value in lowercase
+       }
+       keyonce_11_9=1; //lock value
+     }
+     else { //If the lock is engaged (means the user is holding down the key)
+       repeat_11_9++; //add to repeat value 
+       if(repeat_11_9 > repeat_time) { //if the user has held down the key longer than repeat_time  
+        if(shft == true || lock == true){ //has shift or lock been pressed?
+          Keyboard.write('B'); //Print value in caps
+        } else if (fctn == true) { //has function been pressed?
+          //HAS NO FUNCTION ASSIGNED
+        } else {// has no mod been pressed?
+          Keyboard.write('b'); //print value in lowercase
+        }
+        delay(100); //give a little delay time so the spam isn't so intense.
+       }
+     }     
+   }
+   else { //don't repeat while held down (if key depressed, reset key lock and repeat timer)
+     keyonce_11_9=0; 
+     repeat_11_9=0;
+   }
+        //V Key
+   if (digitalRead(COLUM_15_PIN) == HIGH) { //is colum 15 reading high?   
+     if(keyonce_11_15!=1) { //Has this key been pressed before?
+       if(shft == true || lock == true){ //has shift or lock been pressed?
+         Keyboard.write('V'); //Print value in caps
+       } else if (fctn == true) { //has function been pressed?
+         //HAS NO FUNCTION ASSIGNED
+       } else {// has no mod been pressed?
+         Keyboard.write('v'); //print value in lowercase
+       }
+       keyonce_11_15=1; //lock value
+     }
+     else { //If the lock is engaged (means the user is holding down the key)
+       repeat_11_15++; //add to repeat value 
+       if(repeat_11_15 > repeat_time) { //if the user has held down the key longer than repeat_time  
+        if(shft == true || lock == true){ //has shift or lock been pressed?
+          Keyboard.write('V'); //Print value in caps
+        } else if (fctn == true) { //has function been pressed?
+          //HAS NO FUNCTION ASSIGNED
+        } else {// has no mod been pressed?
+          Keyboard.write('v'); //print value in lowercase
+        }
+        delay(100); //give a little delay time so the spam isn't so intense.
+       }
+     }     
+   }
+   else { //don't repeat while held down (if key depressed, reset key lock and repeat timer)
+     keyonce_11_15=0; 
+     repeat_11_15=0;
+   }
+      //C Key
+   if (digitalRead(COLUM_14_PIN) == HIGH) { //is colum 14 reading high?   
+     if(keyonce_11_14!=1) { //Has this key been pressed before?
+       if(shft == true || lock == true){ //has shift or lock been pressed?
+         Keyboard.write('C'); //Print value in caps
+       } else if (fctn == true) { //has function been pressed?
+         Keyboard.write('`'); //Print function value
+       } else {// has no mod been pressed?
+         Keyboard.write('c'); //print value in lowercase
+       }
+       keyonce_11_14=1; //lock value
+     }
+     else { //If the lock is engaged (means the user is holding down the key)
+       repeat_11_14++; //add to repeat value 
+       if(repeat_11_14 > repeat_time) { //if the user has held down the key longer than repeat_time  
+        if(shft == true || lock == true){ //has shift or lock been pressed?
+          Keyboard.write('C'); //Print value in caps
+        } else if (fctn == true) { //has function been pressed?
+          Keyboard.write('`'); //Print function value
+        } else {// has no mod been pressed?
+          Keyboard.write('c'); //print value in lowercase
+        }
+        delay(100); //give a little delay time so the spam isn't so intense.
+       }
+     }     
+   }
+   else { //don't repeat while held down (if key depressed, reset key lock and repeat timer)
+     keyonce_11_14=0; 
+     repeat_11_14=0;
+   }
+       //X Key
+   if (digitalRead(COLUM_13_PIN) == HIGH) { //is colum 13 reading high?   
+     if(keyonce_11_13!=1) { //Has this key been pressed before?
+       if(shft == true || lock == true){ //has shift or lock been pressed?
+         Keyboard.write('X'); //Print value in caps
+       } else if (fctn == true) { //has function been pressed?
+         Keyboard.write(KEY_DOWN_ARROW); //Print function value
+       } else {// has no mod been pressed?
+         Keyboard.write('x'); //print value in lowercase
+       }
+       keyonce_11_13=1; //lock value
+     }
+     else { //If the lock is engaged (means the user is holding down the key)
+       repeat_11_13++; //add to repeat value 
+       if(repeat_11_13 > repeat_time) { //if the user has held down the key longer than repeat_time  
+        if(shft == true || lock == true){ //has shift or lock been pressed?
+          Keyboard.write('X'); //Print value in caps
+        } else if (fctn == true) { //has function been pressed?
+          Keyboard.write(KEY_DOWN_ARROW); //Print function value
+        } else {// has no mod been pressed?
+          Keyboard.write('x'); //print value in lowercase
+        }
+        delay(100); //give a little delay time so the spam isn't so intense.
+       }
+     }     
+   }
+   else { //don't repeat while held down (if key depressed, reset key lock and repeat timer)
+     keyonce_11_13=0; 
+     repeat_11_13=0;
+   }
+//------------------------------------------------ROW 11 END----------------------------------------------------
+   digitalWrite(ROW_11,LOW); //row 10 off
+}
+
+//------------------------------------------------MODIFIER KEYS------------------------------------------------
+void checkModifiers()
+{ 
+  // ------------------------ Wire 3 @ PIN 12: shft
+  digitalWrite(ROW_3, HIGH); //row 3 on
+  if(digitalRead(COLUM_12_PIN) == 1){
+   shft = true; 
+  } else {
+   shft = false; 
+  }
+  digitalWrite(ROW_3, LOW);
+  
+  // ------------------------ Wire 7 @ PIN 16: fctn & lock
+  digitalWrite(ROW_7, HIGH); 
+  if(digitalRead(COLUM_12_PIN) == 1){
+   fctn = true; 
+  } else {
+   fctn = false; 
+  }
+  if(digitalRead(COLUM_6_PIN) == 1){
+   lock = true; 
+  } else {
+   lock = false; 
+  }
+  digitalWrite(ROW_7, LOW);
+  // ------------------------ Wire 10 @ PIN 44: ctrl
+  digitalWrite(ROW_10, HIGH);
+  if(digitalRead(COLUM_12_PIN) == 1){
+   ctrl = true; 
+  } else {
+   ctrl = false; 
+  }
+  digitalWrite(ROW_10, LOW);
+}
